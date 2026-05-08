@@ -1,7 +1,16 @@
 <template>
   <div class="app-container">
     <Transition name="fade" mode="out-in">
-      <div v-if="!user" key="login" class="login-wrapper text-center">
+      <LoginPanel
+        v-if="!user"
+        v-model:email="email"
+        v-model:password="password"
+        :error="error"
+        @standard-login="emailLogin"
+        @register="emailRegister"
+        @google-login="googleLogin"
+      />
+      <!-- <div v-if="!user" key="login" class="login-wrapper text-center">
         <h1 class="soapstone-title">Orange Soapstone</h1>
         <p class="subtitle">Brunon & Filip</p>
         <div class="auth-box shadow">
@@ -22,13 +31,20 @@
             </div>
           <p v-if="error" class="error-msg mt-3">{{ error }}</p>
         </div>
-      </div>
+      </div> -->
 
       <div v-else-if="isLoading" key="loading" class="text-center">
         <h2 class="soapstone-title">Loading...</h2>
       </div>
 
-      <div v-else-if="!nicknameSet" key="setup" class="setup-nick text-center p-4">
+      <NicknameSetup
+        v-else-if="!nicknameSet"
+        v-model:nickname="tempNickname"
+        :error="nickError"
+        @save="saveNickname"
+      />
+
+      <!-- <div v-else-if="!nicknameSet" key="setup" class="setup-nick text-center p-4">
         <h1 class="soapstone-title">Choose your name</h1>
         <p class="subtitle">How do you want to be known?</p>
         <div class="auth-box shadow mx-auto">
@@ -36,21 +52,33 @@
           <button @click="saveNickname" class="btn btn-orange w-100">CONFIRM</button>
           <p v-if="nickError" class="error-msg mt-2">{{ nickError }}</p>
         </div>
-      </div>
-      <div v-else key="app" class="content-wrapper text-center p-4">
-        <h2 class="soapstone-title">Welcome!</h2>
-        <div class="user-info my-4">
-          <p class="mb-1">Greetings, <strong class="text-orange">{{ nickname }}</strong></p>
-          <small class="text-muted">{{ user.email }}</small>
-        </div>
-        
-        <div class="map-placeholder border border-warning rounded p-5 mb-4">
-          TODO: IMPLEMENT THE MAP HERE
-        </div>
+      </div> -->
 
-        <button @click="logout" class="btn btn-outline-danger px-4 btn-sm">Leave</button>
-      </div>
-
+      <HomePanel v-else :user="user" :nickname="nickname" @logout="logout" />
     </Transition>
   </div>
 </template>
+
+<script setup>
+import LoginPanel from "./components/LoginPanel.vue";
+import NicknameSetup from "./components/NicknameSetup.vue";
+import HomePanel from "./components/HomePanel.vue";
+import { useAuth } from "./composables/useAuth";
+
+const {
+  user,
+  email,
+  password,
+  error,
+  nickname,
+  tempNickname,
+  nicknameSet,
+  nickError,
+  isLoading,
+  emailRegister,
+  saveNickname,
+  googleLogin,
+  emailLogin,
+  logout,
+} = useAuth();
+</script>
