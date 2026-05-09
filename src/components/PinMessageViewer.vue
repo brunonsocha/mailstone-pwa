@@ -6,6 +6,9 @@
         <span class="viewer-coords">
           {{ props.pin.lat.toFixed(5) }}, {{ props.pin.lng.toFixed(5) }}
         </span>
+        <span v-if="formattedCreatedAt" class="viewer-created-at">
+          {{ formattedCreatedAt }}
+        </span>
       </div>
 
       <div class="viewer-content">
@@ -48,6 +51,25 @@ const messageTypeLabel = computed(() => {
   if (props.pin.type === "image") return "Image message";
   if (props.pin.type === "voice") return "Voice message";
   return "Text message";
+});
+
+const formattedCreatedAt = computed(() => {
+  const value = props.pin.createdAt;
+  if (!value) return "";
+
+  const date =
+    typeof value?.toDate === "function"
+      ? value.toDate()
+      : value instanceof Date
+        ? value
+        : new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat("pl-PL", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 });
 </script>
 
@@ -94,7 +116,8 @@ const messageTypeLabel = computed(() => {
 }
 
 .viewer-badge,
-.viewer-coords {
+.viewer-coords,
+.viewer-created-at {
   padding: 6px 10px;
   border: 1px solid rgba(255, 140, 0, 0.35);
   border-radius: 999px;

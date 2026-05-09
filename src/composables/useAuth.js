@@ -7,7 +7,7 @@ import {
   createUserWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, getDocs, query, setDoc, where, collection } from "firebase/firestore";
 
 export const useAuth = () => {
   const user = ref(null);
@@ -74,21 +74,43 @@ export const useAuth = () => {
   };
 
   const saveNickname = async () => {
-    if (tempNickname.value.length < 3) {
+    const trimmedNickname = tempNickname.value.trim();
+    const normalizedNickname = trimmedNickname.toLowerCase();
+
+    if (trimmedNickname.length < 3) {
       nickError.value = "Name must be at least 3 characters.";
       return;
     }
 
     try {
+      const existingUsers = await getDocs(
+        query(
+          collection(db, "users"),
+          where("nicknameLower", "==", normalizedNickname),
+        ),
+      );
+
+      const nicknameTaken = existingUsers.docs.some(
+        (snapshot) => snapshot.id !== user.value.uid,
+      );
+
+      if (nicknameTaken) {
+        nickError.value = "That nickname is already taken.";
+        return;
+      }
+
       await setDoc(doc(db, "users", user.value.uid), {
-        nickname: tempNickname.value,
+        nickname: trimmedNickname,
+        nicknameLower: normalizedNickname,
         email: user.value.email,
         role: "traveler",
         joinedAt: new Date(),
       });
 
-      nickname.value = tempNickname.value;
+      tempNickname.value = trimmedNickname;
+      nickname.value = trimmedNickname;
       nicknameSet.value = true;
+      nickError.value = "";
     } catch (err) {
       nickError.value = "Permission denied";
       console.log(err);
