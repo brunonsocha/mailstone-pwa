@@ -8,9 +8,6 @@
       <small class="text-muted">{{ props.user.email }}</small>
     </div>
 
-    <!-- <div class="map-placeholder border border-warning rounded p-5 mb-4 w-100">
-      TODO: IMPLEMENT THE MAP HERE
-    </div> -->
     <AppMap :user="props.user" />
 
     <button @click="emit('logout')" class="btn btn-outline-danger px-4 btn-sm">

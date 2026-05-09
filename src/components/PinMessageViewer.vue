@@ -96,7 +96,7 @@ const formattedCreatedAt = computed(() => {
   align-items: stretch;
   justify-content: stretch;
   padding: 0;
-  background: rgba(0, 0, 0, 0.72);
+  background: var(--app-overlay);
 }
 
 .viewer-panel {
@@ -105,8 +105,8 @@ const formattedCreatedAt = computed(() => {
   width: 100%;
   min-height: 100%;
   padding: 20px;
-  background: #14100c;
-  border: 1px solid rgba(255, 140, 0, 0.55);
+  background: var(--app-brown);
+  border: 1px solid var(--app-panel-border);
   border-radius: 0;
   overflow: auto;
 }
@@ -117,7 +117,7 @@ const formattedCreatedAt = computed(() => {
   padding: 8px 12px;
   color: var(--app-text);
   background: transparent;
-  border: 1px solid rgba(255, 140, 0, 0.6);
+  border: 1px solid var(--app-panel-border);
   border-radius: 4px;
 }
 
@@ -133,10 +133,10 @@ const formattedCreatedAt = computed(() => {
 .viewer-coords,
 .viewer-created-at {
   padding: 6px 10px;
-  border: 1px solid rgba(255, 140, 0, 0.35);
+  border: 1px solid var(--app-panel-border-soft);
   border-radius: 999px;
   color: var(--app-text);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--app-panel-fill);
   font-size: 0.82rem;
 }
 
@@ -163,8 +163,8 @@ const formattedCreatedAt = computed(() => {
 .viewer-text-shell {
   width: 100%;
   padding: 18px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 140, 0, 0.18);
+  background: var(--app-panel-fill);
+  border: 1px solid var(--app-panel-border-faint);
   border-radius: 8px;
 }
 

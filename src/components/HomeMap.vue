@@ -12,6 +12,19 @@
     </Transition>
 
     <Transition name="fade">
+      <AvailablePinsList
+        v-if="isViewingReadablePins"
+        :pins="readablePins"
+        @close="isViewingReadablePins = false"
+        @select="handleReadablePinSelection"
+      />
+    </Transition>
+
+    <Transition name="fade">
+      <VoiceRecorder v-if="isRecordingVoice" @save="handleVoiceSave" @cancel="closeVoiceRecorder" />
+    </Transition>
+
+    <Transition name="fade">
       <PinTypeSelector
         v-if="isSelectingType"
         @select="handleTypeSelection"
@@ -27,6 +40,8 @@
       <button :disabled="!canShareSelectedPin" @click="shareSelectedPin">
         Share
       </button>
+
+      <button @click="isViewingReadablePins = true">Nearby</button>
     </div>
 
     <p v-if="statusMessage" class="map-status">{{ statusMessage }}</p>
@@ -35,8 +50,10 @@
 
 <script setup>
 import { ref, toRef } from "vue";
+import AvailablePinsList from "./AvailablePinsList.vue";
 import PinTypeSelector from "./PinTypeSelector.vue";
 import PinMessageViewer from "./PinMessageViewer.vue";
+import VoiceRecorder from "./VoiceRecorder.vue";
 import { useLeafletMap } from "../composables/useLeafletMap";
 
 const props = defineProps({
@@ -44,22 +61,44 @@ const props = defineProps({
 });
 const user = toRef(props, "user");
 const isSelectingType = ref(false);
+const isViewingReadablePins = ref(false);
 
 const {
   mapEl,
   selectedPin,
   statusMessage,
+  readablePins,
   canShareSelectedPin,
   centerOnUser,
   closeSelectedPin,
   createPinHere,
+  isRecordingVoice,
+  openVoiceRecorder,
+  closeVoiceRecorder,
+  openReadablePin,
   shareSelectedPin,
+  saveVoicePin,
   reportSelectedPin,
 } = useLeafletMap({ user, rangeMeters: 500 });
 
 const handleTypeSelection = (type) => {
   isSelectingType.value = false;
+
+  if (type === "voice") {
+    openVoiceRecorder();
+    return;
+  }
+
   createPinHere(type);
+};
+
+const handleVoiceSave = async (blob) => {
+  await saveVoicePin(blob);
+};
+
+const handleReadablePinSelection = (pin) => {
+  isViewingReadablePins.value = false;
+  openReadablePin(pin);
 };
 </script>
 
@@ -109,8 +148,8 @@ const handleTypeSelection = (type) => {
 }
 
 :global(.soapstone-pin) {
-  background: #ff8c00;
-  border: 2px solid #1a110a;
+  background: var(--app-orange);
+  border: 2px solid var(--app-brown);
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
 }

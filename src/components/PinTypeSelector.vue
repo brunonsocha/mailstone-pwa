@@ -35,7 +35,7 @@ const emit = defineEmits(['select', 'cancel']);
 .pin-type-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--app-overlay-strong);
   z-index: 2000;
   display: flex;
   justify-content: center;
@@ -44,7 +44,7 @@ const emit = defineEmits(['select', 'cancel']);
 }
 
 .type-selector-box {
-  background: #1a110a; /* Soulslike dark brown */
+  background: var(--app-brown);
   padding: 3rem;
   border: 1px solid var(--app-orange);
   border-radius: 4px;

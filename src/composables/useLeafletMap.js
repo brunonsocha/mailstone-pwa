@@ -32,6 +32,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
   const selectedPin = ref(null);
   const statusMessage = ref("");
   const pins = ref([]);
+  const isRecordingVoice = ref(false);
 
   let map;
   let userMarker;
@@ -39,6 +40,24 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
   const pinMarkers = new Map();
 
   const canShareSelectedPin = computed(() => Boolean(selectedPin.value));
+  const readablePins = computed(() =>
+    pins.value
+      .map((pin) => {
+        const distance = getDistanceToPin(pin);
+        return {
+          ...pin,
+          distance: distance ?? Infinity,
+          distanceLabel:
+            distance === null
+              ? ""
+              : distance < 1000
+                ? `${Math.round(distance)} m`
+                : `${(distance / 1000).toFixed(1)} km`,
+        };
+      })
+      .filter((pin) => pin.distance <= rangeMeters)
+      .sort((left, right) => left.distance - right.distance),
+  );
 
   const userIcon = L.divIcon({
     className: "soapstone-user-dot",
@@ -104,7 +123,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     }
   };
 
-  const selectPin = (pin, marker) => {
+  const selectPin = (pin) => {
     if (!isPinInRange(pin)) {
       selectedPin.value = null;
       statusMessage.value = "Podejdź bliżej. Pinezka jest poza Twoim zasięgiem";
@@ -119,7 +138,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     if (!map || pinMarkers.has(pin.id)) return;
 
     const marker = L.marker([pin.lat, pin.lng], { icon: pinIcon }).addTo(map);
-    marker.on("click", () => selectPin(pin, marker));
+    marker.on("click", () => selectPin(pin));
     pinMarkers.set(pin.id, marker);
   };
 
@@ -162,7 +181,32 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     selectedPin.value = null;
   };
 
+  const openReadablePin = (pin) => {
+    selectPin(pin);
+  };
+
+  const openVoiceRecorder = () => {
+    if (!userCoords.value) {
+      statusMessage.value = "Najpierw pozwól aplikacji pobrać lokalizację";
+      return;
+    }
+
+    if (!user.value?.uid) {
+      statusMessage.value = "Zaloguj się ponownie.";
+      return;
+    }
+
+    statusMessage.value = "";
+    isRecordingVoice.value = true;
+  };
+
+  const closeVoiceRecorder = () => {
+    isRecordingVoice.value = false;
+  };
+
   const savePinToFirestore = async (type, content) => {
+    const createdAt = new Date();
+
     const docRef = await addDoc(collection(db, "pins"), {
       createdAt: serverTimestamp(),
       location: new GeoPoint(userCoords.value.lat, userCoords.value.lng),
@@ -174,6 +218,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     const newPin = {
       id: docRef.id,
       ownerUid: user.value.uid,
+      createdAt,
       lat: userCoords.value.lat,
       lng: userCoords.value.lng,
       type,
@@ -226,8 +271,38 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
         }
       };
       input.click();
-    } else if (type === "voice") {
-      statusMessage.value = "Nagrywanie głosowe będzie dostępne wkrótce.";
+    }
+  };
+
+  const saveVoicePin = async (audioBlob) => {
+    if (!audioBlob) return;
+
+    if (!userCoords.value || !user.value?.uid) {
+      statusMessage.value = "Zaloguj się ponownie.";
+      isRecordingVoice.value = false;
+      return;
+    }
+
+    statusMessage.value = "Przesyłanie nagrania...";
+
+    const extension = audioBlob.type.includes("ogg") ? "ogg" : "webm";
+    const fileRef = sRef(
+      storage,
+      `pins/${user.value.uid}/voice/${Date.now()}.${extension}`,
+    );
+
+    try {
+      await uploadBytes(fileRef, audioBlob, {
+        contentType: audioBlob.type || "audio/webm",
+      });
+
+      const url = await getDownloadURL(fileRef);
+      await savePinToFirestore("voice", url);
+
+      statusMessage.value = "Nagranie zapisane!";
+      isRecordingVoice.value = false;
+    } catch (error) {
+      statusMessage.value = "Błąd przesyłania nagrania.";
     }
   };
 
@@ -313,11 +388,18 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     selectedPin,
     statusMessage,
     pins,
+    isRecordingVoice,
+    readablePins,
     canShareSelectedPin,
     centerOnUser,
     closeSelectedPin,
     createPinHere,
+    openVoiceRecorder,
+    closeVoiceRecorder,
+    openReadablePin,
     shareSelectedPin,
+    saveVoicePin,
     loadPins,
+    reportSelectedPin,
   };
 };

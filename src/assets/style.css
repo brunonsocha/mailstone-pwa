@@ -4,6 +4,13 @@
   --app-orange: #ff8c00;
   --app-yellow: #ffcc00;
   --app-text: #d1c7b7;
+  --app-overlay: rgba(0, 0, 0, 0.72);
+  --app-overlay-strong: rgba(0, 0, 0, 0.8);
+  --app-panel-border: rgba(255, 140, 0, 0.55);
+  --app-panel-border-soft: rgba(255, 140, 0, 0.35);
+  --app-panel-border-faint: rgba(255, 140, 0, 0.18);
+  --app-panel-fill: rgba(255, 255, 255, 0.03);
+  --app-text-muted: rgba(209, 199, 183, 0.72);
 }
 
 body {
