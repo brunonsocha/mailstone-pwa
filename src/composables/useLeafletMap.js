@@ -1,21 +1,14 @@
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useAuth } from "./useAuth";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import L from "leaflet";
 import {
   addDoc,
   collection,
-  doc,
-  getDoc,
   getDocs,
   GeoPoint,
-  query,
   serverTimestamp,
-  where,
 } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { ref as sRef, uploadBytes, getDownloadURL } from "firebase/storage";
-
-const RECEIVED_PIN_IDS_KEY = "soapstone.receivedPinIds";
 
 const mapPinDoc = (snapshot) => {
   if (!snapshot.exists()) return null;
@@ -33,8 +26,7 @@ const mapPinDoc = (snapshot) => {
   };
 };
 
-export const useLeafletMap = ({ rangeMeters = 500 } = {}) => {
-  const { user } = useAuth();
+export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
   const mapEl = ref(null);
   const userCoords = ref(null);
   const selectedPin = ref(null);
@@ -62,49 +54,9 @@ export const useLeafletMap = ({ rangeMeters = 500 } = {}) => {
     iconAnchor: [12, 24],
   });
 
-  const getReceivedPinIds = () => {
-    try {
-      return JSON.parse(localStorage.getItem(RECEIVED_PIN_IDS_KEY) ?? "[]");
-    } catch {
-      return [];
-    }
-  };
-
-  const rememberReceivedPinId = (pinId) => {
-    const ids = new Set(getReceivedPinIds());
-    ids.add(pinId);
-    localStorage.setItem(RECEIVED_PIN_IDS_KEY, JSON.stringify([...ids]));
-  };
-
-  const createEmptyPin = async ({ ownerUid, lat, lng }) => {
-    const docRef = await addDoc(collection(db, "pins"), {
-      createdAt: serverTimestamp(),
-      location: new GeoPoint(lat, lng),
-      ownerUid,
-    });
-
-    return {
-      id: docRef.id,
-      ownerUid,
-      lat,
-      lng,
-      photoUrl: null,
-    };
-  };
-
-  const getPinById = async (pinId) => {
-    const snapshot = await getDoc(doc(db, "pins", pinId));
-    return mapPinDoc(snapshot);
-  };
-
-  const getPinsByOwner = async (ownerUid) => {
-    const pinsQuery = query(
-      collection(db, "pins"),
-      where("ownerUid", "==", ownerUid),
-    );
-    const snapshot = await getDocs(pinsQuery);
-
-    return snapshot.docs.map(mapPinDoc).filter(Boolean);
+  const getAllPins = async () => {
+    const pinsQuery = await getDocs(collection(db, "pins"));
+    return pinsQuery.docs.map(mapPinDoc).filter(Boolean);
   };
 
   const getDistanceToPin = (pin) => {
@@ -146,17 +98,21 @@ export const useLeafletMap = ({ rangeMeters = 500 } = {}) => {
       userRangeCircle.setLatLng([lat, lng]);
       userRangeCircle.setRadius(rangeMeters);
     }
+
+    if (!selectedPin.value) {
+      map.setView([lat, lng], 16);
+    }
   };
 
   const selectPin = (pin, marker) => {
-    selectedPin.value = pin;
-
     if (!isPinInRange(pin)) {
+      selectedPin.value = null;
       statusMessage.value = "Podejdź bliżej. Pinezka jest poza Twoim zasięgiem";
       marker.closePopup();
       return;
     }
 
+    selectedPin.value = pin;
     statusMessage.value = "";
     let popupHtml = "";
     if (pin.type === "image") {
@@ -175,10 +131,17 @@ export const useLeafletMap = ({ rangeMeters = 500 } = {}) => {
 
     const marker = L.marker([pin.lat, pin.lng], { icon: pinIcon }).addTo(map);
     marker.on("click", () => selectPin(pin, marker));
+    marker.on("popupclose", () => {
+      if (selectedPin.value?.id === pin.id) {
+        selectedPin.value = null;
+      }
+    });
     pinMarkers.set(pin.id, marker);
   };
 
   const setPins = (nextPins) => {
+    pinMarkers.forEach((marker) => marker.remove());
+    pinMarkers.clear();
     pins.value = nextPins;
     nextPins.forEach(addPin);
   };
@@ -186,20 +149,24 @@ export const useLeafletMap = ({ rangeMeters = 500 } = {}) => {
   const loadPins = async () => {
     if (!user.value?.uid) return;
 
-    const ownedPins = await getPinsByOwner(user.value.uid);
-
-    const sharedPinId = new URLSearchParams(window.location.search).get("pin");
-    const receivedIds = new Set(getReceivedPinIds());
-
-    if (sharedPinId) {
-      receivedIds.add(sharedPinId);
-      rememberReceivedPinId(sharedPinId);
-    }
-
-    const receivedPins = await Promise.all([...receivedIds].map(getPinById));
-
-    setPins([...ownedPins, ...receivedPins.filter(Boolean)]);
+    const allPins = await getAllPins();
+    setPins(allPins);
   };
+
+  watch(
+    () => user.value?.uid,
+    async (uid) => {
+      if (!uid) {
+        setPins([]);
+        selectedPin.value = null;
+        statusMessage.value = "";
+        return;
+      }
+
+      await loadPins();
+    },
+    { immediate: true },
+  );
 
   const centerOnUser = () => {
     if (map && userCoords.value) {
@@ -308,7 +275,7 @@ export const useLeafletMap = ({ rangeMeters = 500 } = {}) => {
 
     map.locate({
       watch: true,
-      setView: true,
+      setView: false,
       maxZoom: 16,
       enableHighAccuracy: true,
     });
@@ -319,6 +286,8 @@ export const useLeafletMap = ({ rangeMeters = 500 } = {}) => {
   onUnmounted(() => {
     if (!map) return;
 
+    pinMarkers.forEach((marker) => marker.remove());
+    pinMarkers.clear();
     map.stopLocate();
     map.remove();
     map = null;

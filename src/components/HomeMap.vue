@@ -25,14 +25,14 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, toRef } from "vue";
 import PinTypeSelector from "./PinTypeSelector.vue";
 import { useLeafletMap } from "../composables/useLeafletMap";
 
 const props = defineProps({
   user: { type: Object, required: true },
 });
-
+const user = toRef(props, "user");
 const isSelectingType = ref(false);
 
 const {
@@ -42,7 +42,7 @@ const {
   centerOnUser,
   createPinHere,
   shareSelectedPin,
-} = useLeafletMap({ user: props.user, rangeMeters: 500 });
+} = useLeafletMap({ user, rangeMeters: 500 });
 
 const handleTypeSelection = (type) => {
   isSelectingType.value = false;
