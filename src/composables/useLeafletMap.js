@@ -108,22 +108,11 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     if (!isPinInRange(pin)) {
       selectedPin.value = null;
       statusMessage.value = "Podejdź bliżej. Pinezka jest poza Twoim zasięgiem";
-      marker.closePopup();
       return;
     }
 
     selectedPin.value = pin;
     statusMessage.value = "";
-    let popupHtml = "";
-    if (pin.type === "image") {
-      popupHtml = `<div class="photo-popup"><img src="${pin.content}" alt="Photo"></div>`;
-    } else if (pin.type === "voice") {
-      popupHtml = `<div class="audio-popup"><audio controls src="${pin.content}"></audio></div>`;
-    } else {
-      popupHtml = `<div class="text-popup"><p>${pin.content}</p></div>`;
-    }
-    marker.bindPopup(popupHtml, { closeButton: false, maxWidth: 600 }).openPopup();
-    
   };
 
   const addPin = (pin) => {
@@ -131,11 +120,6 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
 
     const marker = L.marker([pin.lat, pin.lng], { icon: pinIcon }).addTo(map);
     marker.on("click", () => selectPin(pin, marker));
-    marker.on("popupclose", () => {
-      if (selectedPin.value?.id === pin.id) {
-        selectedPin.value = null;
-      }
-    });
     pinMarkers.set(pin.id, marker);
   };
 
@@ -172,6 +156,10 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     if (map && userCoords.value) {
       map.setView([userCoords.value.lat, userCoords.value.lng], 16);
     }
+  };
+
+  const closeSelectedPin = () => {
+    selectedPin.value = null;
   };
 
   const savePinToFirestore = async (type, content) => {
@@ -301,6 +289,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     pins,
     canShareSelectedPin,
     centerOnUser,
+    closeSelectedPin,
     createPinHere,
     shareSelectedPin,
     loadPins,

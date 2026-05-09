@@ -3,6 +3,10 @@
     <div ref="mapEl" class="map-root"></div>
 
     <Transition name="fade">
+      <PinMessageViewer v-if="selectedPin":pin="selectedPin" @close="closeSelectedPin"/>
+    </Transition>
+
+    <Transition name="fade">
       <PinTypeSelector 
         v-if="isSelectingType" 
         @select="handleTypeSelection" 
@@ -27,6 +31,7 @@
 <script setup>
 import { ref, toRef } from "vue";
 import PinTypeSelector from "./PinTypeSelector.vue";
+import PinMessageViewer from "./PinMessageViewer.vue";
 import { useLeafletMap } from "../composables/useLeafletMap";
 
 const props = defineProps({
@@ -37,9 +42,11 @@ const isSelectingType = ref(false);
 
 const {
   mapEl,
+  selectedPin,
   statusMessage,
   canShareSelectedPin,
   centerOnUser,
+  closeSelectedPin,
   createPinHere,
   shareSelectedPin,
 } = useLeafletMap({ user, rangeMeters: 500 });
