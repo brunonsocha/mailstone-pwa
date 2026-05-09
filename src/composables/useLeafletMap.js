@@ -166,9 +166,9 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     const docRef = await addDoc(collection(db, "pins"), {
       createdAt: serverTimestamp(),
       location: new GeoPoint(userCoords.value.lat, userCoords.value.lng),
-      ownerUid: user.value.uid, 
+      ownerUid: user.value.uid,
       type: type,
-      content: content
+      content: content,
     });
 
     const newPin = {
@@ -177,7 +177,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
       lat: userCoords.value.lat,
       lng: userCoords.value.lng,
       type,
-      content
+      content,
     };
 
     pins.value.push(newPin);
@@ -200,9 +200,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     if (type === "text") {
       const msg = prompt("Wpisz swoją wiadomość:");
       if (msg) await savePinToFirestore("text", msg);
-    } 
-  
-    else if (type === "image") {
+    } else if (type === "image") {
       const input = document.createElement("input");
       input.type = "file";
       input.accept = "image/*";
@@ -213,8 +211,11 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
         if (!file) return;
 
         statusMessage.value = "Przesyłanie obrazu...";
-        const fileRef = sRef(storage, `pins/${user.value.uid}/${Date.now()}_${file.name}`);
-      
+        const fileRef = sRef(
+          storage,
+          `pins/${user.value.uid}/${Date.now()}_${file.name}`,
+        );
+
         try {
           await uploadBytes(fileRef, file);
           const url = await getDownloadURL(fileRef);
@@ -225,9 +226,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
         }
       };
       input.click();
-    } 
-  
-    else if (type === "voice") {
+    } else if (type === "voice") {
       statusMessage.value = "Nagrywanie głosowe będzie dostępne wkrótce.";
     }
   };
@@ -246,6 +245,33 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     } else {
       await navigator.clipboard.writeText(url);
       statusMessage.value = "Link skopiowany.";
+    }
+  };
+
+  const reportSelectedPin = async (matter) => {
+    if (!selectedPin.value) {
+      statusMessage.value = "Select a pin first.";
+      return;
+    }
+
+    if (!user.value?.uid) {
+      statusMessage.value = "Log in again.";
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "reports"), {
+        createdAt: serverTimestamp(),
+        matter,
+        pinId: selectedPin.value.id,
+        reporterId: user.value.uid,
+      });
+
+      statusMessage.value = "Report sent.";
+      closeSelectedPin();
+    } catch (err) {
+      console.error(err);
+      statusMessage.value = "Could not send report.";
     }
   };
 

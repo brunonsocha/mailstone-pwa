@@ -3,22 +3,27 @@
     <div ref="mapEl" class="map-root"></div>
 
     <Transition name="fade">
-      <PinMessageViewer v-if="selectedPin":pin="selectedPin" @close="closeSelectedPin"/>
+      <PinMessageViewer
+        v-if="selectedPin"
+        :pin="selectedPin"
+        @close="closeSelectedPin"
+        @report="reportSelectedPin"
+      />
     </Transition>
 
     <Transition name="fade">
-      <PinTypeSelector 
-        v-if="isSelectingType" 
-        @select="handleTypeSelection" 
-        @cancel="isSelectingType = false" 
+      <PinTypeSelector
+        v-if="isSelectingType"
+        @select="handleTypeSelection"
+        @cancel="isSelectingType = false"
       />
     </Transition>
 
     <div class="map-toolbar">
       <button @click="centerOnUser">Locate</button>
-      
+
       <button @click="isSelectingType = true">Place pin</button>
-      
+
       <button :disabled="!canShareSelectedPin" @click="shareSelectedPin">
         Share
       </button>
@@ -49,6 +54,7 @@ const {
   closeSelectedPin,
   createPinHere,
   shareSelectedPin,
+  reportSelectedPin,
 } = useLeafletMap({ user, rangeMeters: 500 });
 
 const handleTypeSelection = (type) => {

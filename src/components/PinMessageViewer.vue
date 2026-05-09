@@ -31,6 +31,10 @@
         </div>
       </div>
 
+      <button class="viewer-close" type="button" @click="reportPin">
+        Report
+      </button>
+
       <button class="viewer-close" type="button" @click="emit('close')">
         Close
       </button>
@@ -45,7 +49,17 @@ const props = defineProps({
   pin: { type: Object, required: true },
 });
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(["close", "report"]);
+
+const reportPin = () => {
+  const matter = window.prompt("Report reason:", "offensive language");
+
+  if (!matter?.trim()) {
+    return;
+  }
+
+  emit("report", matter.trim());
+};
 
 const messageTypeLabel = computed(() => {
   if (props.pin.type === "image") return "Image message";
