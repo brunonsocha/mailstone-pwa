@@ -1,4 +1,5 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useAuth } from "./useAuth";
 import L from "leaflet";
 import {
   addDoc,
@@ -32,7 +33,8 @@ const mapPinDoc = (snapshot) => {
   };
 };
 
-export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
+export const useLeafletMap = ({ rangeMeters = 500 } = {}) => {
+  const { user } = useAuth();
   const mapEl = ref(null);
   const userCoords = ref(null);
   const selectedPin = ref(null);
@@ -182,9 +184,9 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
   };
 
   const loadPins = async () => {
-    if (!user?.uid) return;
+    if (!user.value?.uid) return;
 
-    const ownedPins = await getPinsByOwner(user.uid);
+    const ownedPins = await getPinsByOwner(user.value.uid);
 
     const sharedPinId = new URLSearchParams(window.location.search).get("pin");
     const receivedIds = new Set(getReceivedPinIds());
@@ -232,6 +234,11 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
   const createPinHere = async (type) => {
     if (!userCoords.value) {
       statusMessage.value = "Najpierw pozwól aplikacji pobrać lokalizację";
+      return;
+    }
+
+    if (!user.value?.uid) {
+      statusMessage.value = "Zaloguj się ponownie.";
       return;
     }
 
