@@ -1,7 +1,7 @@
 <template>
   <div class="pin-type-overlay">
     <div class="type-selector-box text-center">
-      <h3 class="soapstone-title mb-4">Choose Message Type</h3>
+      <h3 class="mailstone-title mb-4">Choose Message Type</h3>
 
       <div class="d-flex justify-content-around gap-4">
         <div class="type-option" @click="emit('select', 'text')">

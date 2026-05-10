@@ -2,7 +2,7 @@
   <div class="app-container">
     <Transition name="fade" mode="out-in">
       <div v-if="isLoading" key="loading" class="app-loading">
-        <h2 class="soapstone-title">Loading...</h2>
+        <h2>Loading...</h2>
       </div>
 
       <LoginPanel

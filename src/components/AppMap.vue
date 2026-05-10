@@ -47,8 +47,9 @@
 
       <button @click="isViewingReadablePins = true">Nearby</button>
     </div>
-
-    <p v-if="statusMessage" class="map-status">{{ statusMessage }}</p>
+    <Transition name="fade">
+      <p v-if="statusMessage" class="map-status">{{ statusMessage }}</p>
+    </Transition>
   </section>
 </template>
 
@@ -156,7 +157,7 @@ const handleReadablePinSelection = (pin) => {
   line-height: 1.3;
 }
 
-:global(.soapstone-user-dot span) {
+:global(.mailstone-user-dot span) {
   display: block;
   width: 22px;
   height: 22px;
@@ -166,7 +167,7 @@ const handleReadablePinSelection = (pin) => {
   box-shadow: 0 0 0 8px rgba(51, 136, 255, 0.25);
 }
 
-:global(.soapstone-pin) {
+:global(.mailstone-pin) {
   background: var(--app-orange);
   border: 2px solid var(--app-brown);
   border-radius: 50% 50% 50% 0;

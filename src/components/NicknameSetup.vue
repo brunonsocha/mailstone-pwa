@@ -1,6 +1,6 @@
 <template>
   <div key="setup" class="setup-nick text-center p-4">
-    <h1 class="soapstone-title">Choose your name</h1>
+    <h1 class="mailstone-title">Choose your name</h1>
     <p class="subtitle">How do you want to be known?</p>
     <div class="auth-box shadow mx-auto">
       <input

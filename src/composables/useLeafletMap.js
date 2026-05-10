@@ -65,15 +65,25 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
       .sort((left, right) => left.distance - right.distance),
   );
 
+  watch(statusMessage, (message) => {
+    if (!message) return;
+
+    clearTimeout(statusTimeout);
+
+    statusTimeout = setTimeout(() => {
+      statusMessage.value = "";
+    }, 4000);
+  });
+
   const userIcon = L.divIcon({
-    className: "soapstone-user-dot",
+    className: "mailstone-user-dot",
     html: "<span></span>",
     iconSize: [28, 28],
     iconAnchor: [14, 14],
   });
 
   const pinIcon = L.divIcon({
-    className: "soapstone-pin",
+    className: "mailstone-pin",
     html: "",
     iconSize: [24, 24],
     iconAnchor: [12, 24],
@@ -333,7 +343,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
 
     if (navigator.share) {
       await navigator.share({
-        title: "Soapstone pin",
+        title: "MailStone pin",
         text: "Find my pin",
         url,
       });
@@ -393,6 +403,8 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
   });
 
   onUnmounted(() => {
+    clearTimeout(statusTimeout);
+
     if (!map) return;
 
     pinMarkers.forEach((marker) => marker.remove());

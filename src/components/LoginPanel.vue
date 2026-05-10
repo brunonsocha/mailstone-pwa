@@ -1,7 +1,7 @@
 <template>
   <div key="login" class="login-wrapper text-center">
-    <h1 class="soapstone-title">Orange Soapstone</h1>
-    <p class="subtitle">Brunon & Filip</p>
+    <h1 class="app-title">MailStone</h1>
+    <p class="subtitle">Brunon Socha 233861 & Filip Cetnarowicz 221566</p>
     <div class="auth-box shadow">
       <div class="mb-4">
         <input

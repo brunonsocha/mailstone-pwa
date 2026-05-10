@@ -86,7 +86,7 @@ body {
   align-items: center;
 }
 
-.soapstone-title {
+.mailstone-title {
   color: var(--app-orange);
   text-transform: uppercase;
   letter-spacing: 5px;
