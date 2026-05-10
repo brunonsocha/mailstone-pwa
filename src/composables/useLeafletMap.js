@@ -344,15 +344,15 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     const appUrl = `${window.location.origin}${window.location.pathname}?pin=${id}`;
     const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
     const shareText = [
-      "Zostawiłem ci wiadomość w MailStone!",
-      `Podejdź tutaj: ${mapsUrl}`,
-      `I skorzystaj z naszej aplikacji: ${appUrl}`,
+      "I left you a message in MailStone!",
+      `Come here: ${mapsUrl}`,
+      `And use our app: ${appUrl}`,
     ].join("\n");
 
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "MailStone pinezka",
+          title: "MailStone pin",
           text: shareText,
           url: mapsUrl,
         });
@@ -360,14 +360,14 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
       } else {
         if (navigator.clipboard?.writeText) {
           await navigator.clipboard.writeText(shareText);
-          window.alert("Tekst do udostępnienia został skopiowany");
-          statusMessage.value = "Skopiowano tekst udostępniania";
+          window.alert("The text for sharing has been copied to clipboard.");
+          statusMessage.value = "Text copied.";
         } else {
-          window.prompt("Skopiuj i udostępnij ten tekst:", shareText);
+          window.prompt("Copy and share this text:", shareText);
         }
       }
     } catch (error) {
-      statusMessage.value = "Nie udostępniono";
+      statusMessage.value = "Nothing's been shared.";
     }
   };
 
