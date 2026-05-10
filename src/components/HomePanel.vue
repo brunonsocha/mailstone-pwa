@@ -12,7 +12,7 @@
         ☰
       </button>
 
-      <h1 class="app-title ms-auto me-5 m-0">MailStone</h1>
+      <h1 class="app-title m-0">MailStone</h1>
     </header>
     <div
       id="mainMenu"
@@ -76,20 +76,28 @@ const emit = defineEmits(["logout"]);
 }
 
 .app-header {
+  position: relative;
   height: 56px;
   background: var(--app-brown);
   border-bottom: 1px solid var(--app-panel-border-soft);
   color: var(--app-white);
-  .navbar-toggler {
-    border: 1px solid var(--app-white);
-    color: var(--app-white);
-  }
+}
+
+.navbar-toggler {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  border: 1px solid var(--app-white);
+  color: var(--app-white);
 }
 
 .app-title {
+  line-height: 56px;
   letter-spacing: 0.2em;
   color: var(--app-white);
   font-size: x-large;
+  text-align: center;
 }
 
 .menu-close {

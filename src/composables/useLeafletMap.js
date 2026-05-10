@@ -134,10 +134,6 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
       userRangeCircle.setLatLng([lat, lng]);
       userRangeCircle.setRadius(rangeMeters);
     }
-
-    if (!selectedPin.value) {
-      map.setView([lat, lng], 16);
-    }
   };
 
   const selectPin = (pin) => {
@@ -221,7 +217,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     isRecordingVoice.value = false;
   };
 
-  const PIN_LIFETIME_MS = 3 * 24 * 60 * 60 * 1000;
+  const PIN_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
   const savePinToFirestore = async (type, content) => {
     const createdAt = new Date();
