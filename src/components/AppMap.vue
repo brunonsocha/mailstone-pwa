@@ -36,16 +36,32 @@
       />
     </Transition>
 
-    <div class="map-toolbar">
-      <button @click="centerOnUser">Locate</button>
+    <div class="map-toolbar d-flex gap-2">
+      <button @click="centerOnUser" class="map-toolbar-button btn flex-fill">
+        Locate Me
+      </button>
 
-      <button @click="isSelectingType = true">Place pin</button>
+      <button
+        @click="isSelectingType = true"
+        class="map-toolbar-button btn flex-fill"
+      >
+        Place Pin
+      </button>
 
-      <button :disabled="!canShareSelectedPin" @click="shareSelectedPin">
+      <button
+        :disabled="!canShareSelectedPin"
+        @click="shareSelectedPin"
+        class="map-toolbar-button btn flex-fill"
+      >
         Share
       </button>
 
-      <button @click="isViewingReadablePins = true">Nearby</button>
+      <button
+        @click="isViewingReadablePins = true"
+        class="map-toolbar-button btn flex-fill"
+      >
+        Nearby Pins
+      </button>
     </div>
     <Transition name="fade">
       <p v-if="statusMessage" class="map-status">{{ statusMessage }}</p>
@@ -126,13 +142,24 @@ const handleReadablePinSelection = (pin) => {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 25px;
+  bottom: 2rem;
   z-index: 1000;
-  display: flex;
-  gap: 10px;
-  padding: 8px 16px;
+  background: transparent;
+}
+
+.map-toolbar-button {
+  width: 100%;
+  min-height: 44px;
+  color: var(--app-white);
   border: 1px solid var(--app-orange);
-  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.88);
+  font-weight: 700;
+}
+
+.map-toolbar-button:hover {
+  color: var(--app-brown);
+  background: var(--app-orange);
+  border-color: var(--app-orange);
 }
 
 .map-toolbar button:disabled {
