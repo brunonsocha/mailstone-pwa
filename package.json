@@ -1,5 +1,5 @@
 {
-  "name": "soapstone-pwa",
+  "name": "mailstone-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,6 +11,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@fontsource/roboto": "^5.2.10",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.8",
     "firebase": "^12.12.1",

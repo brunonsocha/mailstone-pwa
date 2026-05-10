@@ -21,7 +21,11 @@
     </Transition>
 
     <Transition name="fade">
-      <VoiceRecorder v-if="isRecordingVoice" @save="handleVoiceSave" @cancel="closeVoiceRecorder" />
+      <VoiceRecorder
+        v-if="isRecordingVoice"
+        @save="handleVoiceSave"
+        @cancel="closeVoiceRecorder"
+      />
     </Transition>
 
     <Transition name="fade">

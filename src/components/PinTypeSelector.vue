@@ -2,7 +2,7 @@
   <div class="pin-type-overlay">
     <div class="type-selector-box text-center">
       <h3 class="soapstone-title mb-4">Choose Message Type</h3>
-      
+
       <div class="d-flex justify-content-around gap-4">
         <div class="type-option" @click="emit('select', 'text')">
           <div class="icon-circle"><i class="bi bi-chat-left-text"></i></div>
@@ -28,13 +28,16 @@
 </template>
 
 <script setup>
-const emit = defineEmits(['select', 'cancel']);
+const emit = defineEmits(["select", "cancel"]);
 </script>
 
 <style scoped>
 .pin-type-overlay {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: var(--app-overlay-strong);
   z-index: 2000;
   display: flex;
@@ -77,7 +80,7 @@ const emit = defineEmits(['select', 'cancel']);
 }
 
 .type-option span {
-  font-family: 'Junicode', serif;
+  font-family: "Junicode", serif;
   font-weight: bold;
   letter-spacing: 2px;
   font-size: 0.75rem;

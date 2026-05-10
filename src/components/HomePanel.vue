@@ -1,23 +1,21 @@
 <template>
-  <div key="app" class="content-wrapper text-center p-4">
-    <h2 class="soapstone-title">Welcome!</h2>
-    <div class="user-info my-4">
-      <p class="mb-1">
-        Greetings, <strong class="text-orange">{{ props.nickname }}</strong>
-      </p>
-      <small class="text-muted">{{ props.user.email }}</small>
-    </div>
+  <div key="app" class="home-screen d-flex flex-column overflow-hidden">
+    <header
+      class="app-header navbar navbar-dark px-3 flex-shrink-0 position-relative"
+    >
+      <button class="btn btn-outline-light btn-sm" type="button">☰</button>
+
+      <h1 class="app-title position-absolute start-50 translate-middle-x m-0">
+        MailStone
+      </h1>
+    </header>
 
     <AppMap :user="props.user" />
-
-    <button @click="emit('logout')" class="btn btn-outline-danger px-4 btn-sm">
-      Leave
-    </button>
   </div>
 </template>
 
 <script setup>
-import AppMap from "./HomeMap.vue";
+import AppMap from "./AppMap.vue";
 
 const props = defineProps({
   user: Object,
@@ -26,3 +24,21 @@ const props = defineProps({
 
 const emit = defineEmits(["logout"]);
 </script>
+
+<style scoped>
+.home-screen {
+  height: 100%;
+  width: 100%;
+}
+
+.app-header {
+  height: 56px;
+  background: var(--app-brown);
+  border-bottom: 1px solid var(--app-panel-border-soft);
+}
+
+.app-title {
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+}
+</style>
