@@ -8,7 +8,7 @@
         :pin="selectedPin"
         @close="closeSelectedPin"
         @share="shareSelectedPin"
-        @report="reportSelectedPin"
+        @report="isWritingReport = true"
       />
     </Transition>
 
@@ -32,8 +32,23 @@
     <Transition name="fade">
       <TextMessageField
         v-if="isWritingText"
+        title="Text Message"
+        placeholder="Write your message"
+        save-label="Save"
         @save="handleTextSave"
         @cancel="isWritingText = false"
+      />
+    </Transition>
+
+    <Transition name="fade">
+      <TextMessageField
+        v-if="isWritingReport"
+        title="Report Message"
+        placeholder="Write report reason"
+        save-label="Report"
+        initial-value="offensive language"
+        @save="handleReportSave"
+        @cancel="isWritingReport = false"
       />
     </Transition>
 
@@ -86,6 +101,7 @@ const user = toRef(props, "user");
 const isSelectingType = ref(false);
 const isViewingReadablePins = ref(false);
 const isWritingText = ref(false);
+const isWritingReport = ref(false);
 
 const {
   mapEl,
@@ -128,6 +144,11 @@ const handleVoiceSave = async (blob) => {
 const handleTextSave = async (message) => {
   await saveTextPin(message);
   isWritingText.value = false;
+};
+
+const handleReportSave = async (matter) => {
+  await reportSelectedPin(matter);
+  isWritingReport.value = false;
 };
 
 const handleReadablePinSelection = (pin) => {

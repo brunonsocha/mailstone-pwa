@@ -1,13 +1,13 @@
 <template>
   <div class="text-composer-overlay" @click.self="emit('cancel')">
     <div class="text-composer-panel">
-      <h3 class="text-composer-title">Text Message</h3>
+      <h3 class="text-composer-title">{{ props.title }}</h3>
 
-      <textarea v-model="message" class="text-composer-input" rows="6" placeholder="Write your message"></textarea>
+      <textarea v-model="message" class="text-composer-input" rows="6" :placeholder="props.placeholder"></textarea>
 
       <div class="text-composer-actions">
         <button type="button" class="btn btn-orange" :disabled="!trimmedMessage" @click="emit('save', trimmedMessage)">
-          Save
+          {{ props.saveLabel }}
         </button>
 
         <button type="button" class="text-composer-secondary-button" @click="emit('cancel')">Cancel</button>
@@ -17,12 +17,26 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
+
+const props = defineProps({
+  title: { type: String, default: "Text Message" },
+  placeholder: { type: String, default: "Write your message" },
+  saveLabel: { type: String, default: "Save" },
+  initialValue: { type: String, default: "" },
+});
 
 const emit = defineEmits(["save", "cancel"]);
 
-const message = ref("");
+const message = ref(props.initialValue);
 const trimmedMessage = computed(() => message.value.trim());
+
+watch(
+  () => props.initialValue,
+  (value) => {
+    message.value = value;
+  },
+);
 </script>
 
 <style scoped>

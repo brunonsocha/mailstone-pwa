@@ -38,7 +38,7 @@
         Share
       </button>
 
-      <button class="viewer-close" type="button" @click="reportPin">
+      <button class="viewer-close" type="button" @click="emit('report')">
         Report
       </button>
 
@@ -57,16 +57,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["close", "share", "report"]);
-
-const reportPin = () => {
-  const matter = window.prompt("Report reason:", "offensive language");
-
-  if (!matter?.trim()) {
-    return;
-  }
-
-  emit("report", matter.trim());
-};
 
 const messageTypeLabel = computed(() => {
   if (props.pin.type === "image") return "Image message";
