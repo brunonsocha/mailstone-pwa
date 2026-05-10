@@ -32,6 +32,8 @@ const mapPinDoc = (snapshot) => {
 };
 
 export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
+  const PIN_POLL_INTERVAL_MS = 60 * 1000;
+
   const mapEl = ref(null);
   const userCoords = ref(null);
   const selectedPin = ref(null);
@@ -43,6 +45,8 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
   let userMarker;
   let userRangeCircle;
   let statusTimeout;
+  let pinPollingInterval = null;
+  let isLoadingPins = false;
 
   const pinMarkers = new Map();
 
@@ -160,19 +164,52 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     pinMarkers.clear();
     pins.value = nextPins;
     nextPins.forEach(addPin);
+
+    if (!selectedPin.value) return;
+
+    const refreshedSelectedPin = nextPins.find(
+      (pin) => pin.id === selectedPin.value.id,
+    );
+
+    selectedPin.value = refreshedSelectedPin ?? null;
   };
 
   const loadPins = async () => {
-    if (!user.value?.uid) return;
+    if (!user.value?.uid || isLoadingPins) return;
 
-    const allPins = await getAllPins();
-    setPins(allPins);
+    isLoadingPins = true;
+
+    try {
+      const allPins = await getAllPins();
+      setPins(allPins);
+    } catch (error) {
+      console.error(error);
+      statusMessage.value = "Couldn't refresh pins";
+    } finally {
+      isLoadingPins = false;
+    }
+  };
+
+  const startPinPolling = () => {
+    if (pinPollingInterval) return;
+
+    pinPollingInterval = window.setInterval(() => {
+      void loadPins();
+    }, PIN_POLL_INTERVAL_MS);
+  };
+
+  const stopPinPolling = () => {
+    if (!pinPollingInterval) return;
+
+    window.clearInterval(pinPollingInterval);
+    pinPollingInterval = null;
   };
 
   watch(
     () => user.value?.uid,
     async (uid) => {
       if (!uid) {
+        stopPinPolling();
         setPins([]);
         selectedPin.value = null;
         statusMessage.value = "";
@@ -180,6 +217,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
       }
 
       await loadPins();
+      startPinPolling();
     },
     { immediate: true },
   );
@@ -414,10 +452,12 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     });
 
     await loadPins();
+    startPinPolling();
   });
 
   onUnmounted(() => {
     clearTimeout(statusTimeout);
+    stopPinPolling();
 
     if (!map) return;
 
