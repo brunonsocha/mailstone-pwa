@@ -4,8 +4,11 @@ import {
   addDoc,
   collection,
   getDocs,
+  getDoc,
+  updateDoc,
   GeoPoint,
   serverTimestamp,
+  Timestamp,
 } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { ref as sRef, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -204,6 +207,8 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     isRecordingVoice.value = false;
   };
 
+  const PIN_LIFETIME_MS = 3 * 24 * 60 * 60 * 1000;
+
   const savePinToFirestore = async (type, content) => {
     const createdAt = new Date();
 
@@ -213,6 +218,17 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
       ownerUid: user.value.uid,
       type: type,
       content: content,
+    });
+
+    const snapshot = await getDoc(docRef);
+    const serverCreatedAt = snapshot.data().createdAt;
+
+    const expiresAt = Timestamp.fromMillis(
+      serverCreatedAt.toMillis() + PIN_LIFETIME_MS,
+    );
+
+    await updateDoc(docRef, {
+      expiresAt,
     });
 
     const newPin = {
