@@ -340,17 +340,34 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
   const shareSelectedPin = async () => {
     if (!selectedPin.value) return;
 
-    const url = `${window.location.origin}${window.location.pathname}?pin=${selectedPin.value.id}`;
+    const { id, lat, lng } = selectedPin.value;
+    const appUrl = `${window.location.origin}${window.location.pathname}?pin=${id}`;
+    const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+    const shareText = [
+      "Zostawiłem ci wiadomość w MailStone!",
+      `Podejdź tutaj: ${mapsUrl}`,
+      `I skorzystaj z naszej aplikacji: ${appUrl}`,
+    ].join("\n");
 
-    if (navigator.share) {
-      await navigator.share({
-        title: "MailStone pin",
-        text: "Find my pin",
-        url,
-      });
-    } else {
-      await navigator.clipboard.writeText(url);
-      statusMessage.value = "Link copied";
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "MailStone pinezka",
+          text: shareText,
+          url: mapsUrl,
+        });
+        statusMessage.value = "Udostępniono";
+      } else {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(shareText);
+          window.alert("Tekst do udostępnienia został skopiowany");
+          statusMessage.value = "Skopiowano tekst udostępniania";
+        } else {
+          window.prompt("Skopiuj i udostępnij ten tekst:", shareText);
+        }
+      }
+    } catch (error) {
+      statusMessage.value = "Nie udostępniono";
     }
   };
 

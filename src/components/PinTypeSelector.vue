@@ -1,27 +1,27 @@
 <template>
   <div class="pin-type-overlay">
     <div class="type-selector-box text-center">
-      <h3 class="mailstone-title mb-4">Choose Message Type</h3>
+      <h3 class="type-selector-title">Choose Message Type</h3>
 
-      <div class="d-flex justify-content-around gap-4">
-        <div class="type-option" @click="emit('select', 'text')">
-          <div class="icon-circle"><i class="bi bi-chat-left-text"></i></div>
-          <span>TEXT</span>
-        </div>
+      <div class="type-options">
+        <button type="button" class="type-option" @click="emit('select', 'text')">
+          <i class="bi bi-chat-left-text"></i>
+          <span>Text</span>
+        </button>
 
-        <div class="type-option" @click="emit('select', 'image')">
-          <div class="icon-circle"><i class="bi bi-camera"></i></div>
-          <span>IMAGE</span>
-        </div>
+        <button type="button" class="type-option" @click="emit('select', 'image')">
+          <i class="bi bi-camera"></i>
+          <span>Image</span>
+        </button>
 
-        <div class="type-option" @click="emit('select', 'voice')">
-          <div class="icon-circle"><i class="bi bi-mic"></i></div>
-          <span>VOICE</span>
-        </div>
+        <button type="button" class="type-option" @click="emit('select', 'voice')">
+          <i class="bi bi-mic"></i>
+          <span>Voice</span>
+        </button>
       </div>
 
-      <button @click="emit('cancel')" class="btn btn-outline-light mt-5 btn-sm">
-        CLOSE MENU
+      <button @click="emit('cancel')" class="close-button">
+        Close
       </button>
     </div>
   </div>
@@ -34,55 +34,81 @@ const emit = defineEmits(["select", "cancel"]);
 <style scoped>
 .pin-type-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: var(--app-overlay-strong);
   z-index: 2000;
   display: flex;
-  justify-content: center;
   align-items: center;
-  backdrop-filter: blur(10px);
+  justify-content: center;
 }
 
 .type-selector-box {
-  background: var(--app-brown);
-  padding: 3rem;
-  border: 1px solid var(--app-orange);
-  border-radius: 4px;
-  width: 90%;
-  max-width: 480px;
+  width: min(90%, 460px);
+  padding: 1.5rem;
+  background: var(--app-dark-box);
+  border: 1px solid var(--app-panel-border);
+  border-radius: 6px;
+}
+
+.type-selector-title {
+  margin: 0 0 1rem;
+  color: var(--app-orange);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.type-options {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .type-option {
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.type-option:hover {
-  transform: translateY(-5px);
-  color: var(--app-orange);
-}
-
-.icon-circle {
-  width: 75px;
-  height: 75px;
-  background: var(--app-orange);
-  border-radius: 50%;
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: 2.2rem;
-  color: #000;
-  margin-bottom: 12px;
-  box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  color: var(--app-white);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--app-panel-border-faint);
+  border-radius: 6px;
+  text-align: left;
+}
+
+.type-option i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  color: var(--app-orange);
+  font-size: 1.1rem;
 }
 
 .type-option span {
-  font-family: "Junicode", serif;
-  font-weight: bold;
-  letter-spacing: 2px;
-  font-size: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.type-option:hover,
+.type-option:focus {
+  color: var(--app-white);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--app-panel-border);
+}
+
+.close-button {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  color: var(--app-text);
+  background: transparent;
+  border: 1px solid var(--app-panel-border);
+  border-radius: 6px;
+}
+
+.close-button:hover,
+.close-button:focus {
+  background: rgba(255, 255, 255, 0.06);
 }
 </style>

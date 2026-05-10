@@ -34,6 +34,10 @@
         </div>
       </div>
 
+      <button class="viewer-close" type="button" @click="emit('share')">
+        Share
+      </button>
+
       <button class="viewer-close" type="button" @click="reportPin">
         Report
       </button>
@@ -52,7 +56,7 @@ const props = defineProps({
   pin: { type: Object, required: true },
 });
 
-const emit = defineEmits(["close", "report"]);
+const emit = defineEmits(["close", "share", "report"]);
 
 const reportPin = () => {
   const matter = window.prompt("Report reason:", "offensive language");
@@ -186,6 +190,7 @@ const formattedExpiresIn = computed(() => {
 
 .viewer-text {
   margin: 0;
+  color: var(--app-white);
   font-size: clamp(1rem, 2vw, 1.35rem);
   line-height: 1.6;
   text-align: left;

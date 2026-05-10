@@ -7,6 +7,7 @@
         v-if="selectedPin"
         :pin="selectedPin"
         @close="closeSelectedPin"
+        @share="shareSelectedPin"
         @report="reportSelectedPin"
       />
     </Transition>
@@ -49,14 +50,6 @@
       </button>
 
       <button
-        :disabled="!canShareSelectedPin"
-        @click="shareSelectedPin"
-        class="map-toolbar-button btn flex-fill"
-      >
-        Share
-      </button>
-
-      <button
         @click="isViewingReadablePins = true"
         class="map-toolbar-button btn flex-fill"
       >
@@ -89,7 +82,6 @@ const {
   selectedPin,
   statusMessage,
   readablePins,
-  canShareSelectedPin,
   centerOnUser,
   closeSelectedPin,
   createPinHere,
